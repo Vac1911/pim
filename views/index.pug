@@ -2,4 +2,5 @@ extends layout
 
 block content
   h1= title
-  img.img-fluid(src="/map.png")(style="border: 1px solid white")
+  layer-display(endpoint="/tilemap/{Z}/{X}/{Y}.png")(zoom="2")
+  

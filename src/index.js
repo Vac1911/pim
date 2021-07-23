@@ -1,8 +1,9 @@
 window.ms = require('./lib/milgraphics');
+import "./components/LayerDisplay";
 
 import "./map.js";
 import MilUnit from "./MilUnit";
 import './styles.scss'
 
-let units = [new MilUnit()];
-document.getElementById('sidebar').innerHTML = units[0].getSym();
+if(document.getElementById('sidebar'))
+    document.getElementById('sidebar').innerHTML = (new MilUnit()).getSym();

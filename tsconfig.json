@@ -3,9 +3,18 @@
       "lib": ["es2020"],
       "module": "commonjs",
       "target": "es2020",
+      "moduleResolution": "node",
 
       "esModuleInterop": true,
       "strictNullChecks": true,
+      "experimentalDecorators": true,
       "noImplicitAny": false,
+      
+      "plugins": [
+        {
+          "name": "ts-lit-plugin",
+          "strict": true
+        }
+      ]
     }
 }

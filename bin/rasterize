@@ -1,24 +1,24 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const Layer = require('../tileserver/layer');
+const Map = require('../tileserver/builder/map');
 const features = require('../tileserver/data/world').features;
 
-const layer = new Layer(1)
+const storagePath = path.resolve(__dirname, '../public/tilemap');
+const map = new Map(3, storagePath)
 
 for(const feature of features) {
-    layer.createFeature(feature, 'white');
+    map.createFeature(feature, {strokeStyle: 'white'});
 }
 
-let markers = [
-    [{x: 0, y: 0}, 'cyan'],
-    [{x: -180, y: 80}, 'blue'],
-    [{x: 180, y: -80}, 'blue'],
-    [{x: 13.4, y: 52.5}, 'lime'],
-];
-for(const [coord, color] of markers) {
-    layer.createMarker(coord, color);
-}
+map.run();
 
-const file = path.resolve(__dirname, '../public/map.png');
-layer.writeImage(file);
+// let markers = [
+//     [{x: 0, y: 0}, 'cyan'],
+//     [{x: -180, y: 80}, 'blue'],
+//     [{x: 180, y: -80}, 'blue'],
+//     [{x: 13.4, y: 52.5}, 'lime'],
+// ];
+// for(const [coord, color] of markers) {
+//     layer.createMarker(coord, color);
+// }
