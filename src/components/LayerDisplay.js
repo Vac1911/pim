@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LayerDisplay = void 0;
 const lit_1 = require("lit");
 const decorators_js_1 = require("lit/decorators.js");
+const live_js_1 = require("lit/directives/live.js");
 const style_map_js_1 = require("lit/directives/style-map.js");
 let LayerDisplay = class LayerDisplay extends lit_1.LitElement {
     constructor() {
@@ -34,6 +35,9 @@ let LayerDisplay = class LayerDisplay extends lit_1.LitElement {
         }
         return tiles;
     }
+    setZoom(ev) {
+        this.zoom = ev.target.value;
+    }
     render() {
         const gridStyles = {
             'grid-template-rows': `repeat(${this.sideLength}, 1fr)`,
@@ -42,6 +46,7 @@ let LayerDisplay = class LayerDisplay extends lit_1.LitElement {
         };
         return lit_1.html `
             <div class="wrapper">
+                <input type="number" .value=${live_js_1.live(this.zoom.toString())} min="0" @change=${this.setZoom} />
                 <div>
                     <span>Zoom Level: ${this.zoom}</span>
                 </div>
@@ -78,7 +83,7 @@ LayerDisplay.styles = lit_1.css `
     }
 
     .tile img {
-        max-width: 100%;
+        width: 100%;
     }
   `;
 __decorate([

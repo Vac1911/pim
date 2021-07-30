@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_1 = require("./feature");
 const layer_1 = require("./layer");
+const { execCmd } = require('../utils');
+const chalk = require('chalk');
+const log = console.log;
 // CONSTANTS
 const PI = Math.PI;
 const PI_4 = PI / 4;
@@ -15,10 +18,14 @@ module.exports = class Map {
         this.maxZoom = maxZoom;
         this.storagePath = storagePath;
     }
-    run() {
+    async run() {
+        log('\n' + chalk.bold.bgGreen.black(` Starting Build `));
+        await this.clearStorage();
         this.buildLayers();
         this.drawLayers();
-        this.writeLayers();
+    }
+    async clearStorage() {
+        await execCmd(`rm -rf ${this.storagePath}/*`);
     }
     buildLayers() {
         for (const z of Array(this.maxZoom).keys()) {
@@ -32,23 +39,22 @@ module.exports = class Map {
             }
         }
         for (const z in this.layers) {
+            log(chalk.green(`Drawing Layer ${z}`));
             this.layers[z].run();
-        }
-    }
-    writeLayers() {
-        for (const z in this.layers) {
             this.layers[z].writeTo(`${this.storagePath}`);
         }
     }
     createFeature(feature, ...params) {
-        let polygons = [];
+        let paths = [];
         if (feature.geometry.type == 'MultiPolygon')
-            polygons = feature.geometry.coordinates;
+            paths = feature.geometry.coordinates;
         else if (feature.geometry.type == 'Polygon')
-            polygons = [feature.geometry.coordinates];
-        for (let polygon of polygons) {
-            polygon = polygon[0].map(([x, y]) => this.coordToWorld({ x: x, y: y }));
-            this.features.push(new feature_1.Feature(polygon, ...params));
+            paths = [feature.geometry.coordinates];
+        else if (feature.geometry.type == 'LineString')
+            paths = [[feature.geometry.coordinates]];
+        for (let path of paths) {
+            path = path[0].map(([x, y]) => this.coordToWorld({ x: x, y: y }));
+            this.features.push(new feature_1.Feature(path, ...params));
         }
     }
     /**

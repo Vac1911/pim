@@ -1,24 +1,31 @@
 #!/usr/bin/env node
 
 const path = require('path');
+const chalk = require('chalk');
+const log = console.log;
 const Map = require('../tileserver/builder/map');
-const features = require('../tileserver/data/world').features;
 
 const storagePath = path.resolve(__dirname, '../public/tilemap');
-const map = new Map(3, storagePath)
+const map = new Map(4, storagePath)
 
-for(const feature of features) {
-    map.createFeature(feature, {strokeStyle: 'white'});
+log(chalk.bgBlue.bold.black(` Loading Features `));
+
+const nations = require('../tileserver/data/nations').features.filter(n => n.properties.NAME == 'Canada');
+log(chalk.blue(`Loading Nations (${nations.length})`));
+for(const nation of nations) {
+    map.createFeature(nation, {strokeStyle: 'white'});
 }
 
-map.run();
-
-// let markers = [
-//     [{x: 0, y: 0}, 'cyan'],
-//     [{x: -180, y: 80}, 'blue'],
-//     [{x: 180, y: -80}, 'blue'],
-//     [{x: 13.4, y: 52.5}, 'lime'],
-// ];
-// for(const [coord, color] of markers) {
-//     layer.createMarker(coord, color);
+// const rivers = require('../tileserver/data/rivers').features;
+// log(chalk.blue(`Loading Rivers (${rivers.length})`));
+// for(const river of rivers) {
+//     map.createFeature(river, {strokeStyle: '#0978AB'});
 // }
+
+// const lakes = require('../tileserver/data/lakes').features;
+// log(chalk.blue(`Loading Lakes (${lakes.length})`));
+// for(const lake of lakes) {
+//     map.createFeature(lake, {strokeStyle: '#0978AB', fillStyle: '#C6ECFF'});
+// }
+
+map.run();

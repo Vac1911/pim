@@ -47,8 +47,9 @@ export class Tile {
         for(const i in path) {
             this.context[(i === '0') ? 'moveTo' : 'lineTo'](path[i].x, path[i].y)
         }
-
-        this.context.stroke();
+        
+        if(feat.styles.fillStyle) this.context.fill();
+        if(feat.styles.strokeStyle) this.context.stroke();
     }
 
     applyStyles(styles: DrawStyle) {
@@ -63,41 +64,4 @@ export class Tile {
         fs.writeFileSync(file, this.canvas.toBuffer('image/png'));
         console.log('wrote: ' + file)
     }
-
-    // createMarker(coord: Point, color: string) {
-    //     const world = this.coordToWorld(coord);
-    //     console.log(coord, world);
-    //     this.context.fillStyle = color;
-    //     this.context.beginPath();
-    //     this.context.ellipse(world.x, world.y, 4, 4, 0, 0, 2 * Math.PI)
-    //     this.context.fill();
-    //     this.context.restore();
-    // }
-
-    // createPolygon(coordList: Point[], color: string) {
-    //     this.context.fillStyle = color;
-    //     this.context.strokeStyle = color;
-    //     this.context.beginPath();
-    //     for(const i in coordList) {
-    //         const pixel = this.coordToWorld(coordList[i]);
-    //         const method = (i === '0') ? 'moveTo' : 'lineTo';
-    //         this.context[method](pixel.x, pixel.y)
-    //     }
-    //     this.context.closePath();
-    //     this.context.stroke();
-    //     this.context.restore();
-    // }
-
-    // createFeature(feature, color: string) {
-    //     let polygons: any[] = [];
-    //     if(feature.geometry.type == 'MultiPolygon')
-    //         polygons = feature.geometry.coordinates;
-    //     else if(feature.geometry.type == 'Polygon')
-    //         polygons = [feature.geometry.coordinates];
-
-    //     for(let polygon of polygons) {
-    //         polygon = polygon[0].map(([x, y]) =>({x: x, y: y}));
-    //         this.createPolygon(polygon, color);
-    //     }
-    // }
 }

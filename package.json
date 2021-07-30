@@ -3,7 +3,7 @@
   "version": "4.1.1",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www",
+    "start": "node ./bin/www",
     "reset": "node ./bin/clear-port",
     "raster": "node ./bin/rasterize",
     "ts": "tsc -w",
@@ -13,6 +13,7 @@
     "@turf/turf": "^5.1.6",
     "bootstrap": "^5.0.0-beta1",
     "canvas": "^2.8.0",
+    "chalk": "^4.1.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",

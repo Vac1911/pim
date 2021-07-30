@@ -34,7 +34,10 @@ class Tile {
         for (const i in path) {
             this.context[(i === '0') ? 'moveTo' : 'lineTo'](path[i].x, path[i].y);
         }
-        this.context.stroke();
+        if (feat.styles.fillStyle)
+            this.context.fill();
+        if (feat.styles.strokeStyle)
+            this.context.stroke();
     }
     applyStyles(styles) {
         this.context.restore();

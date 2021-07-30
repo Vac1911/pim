@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import {styleMap} from 'lit/directives/style-map.js';
+import { live } from 'lit/directives/live.js';
+import { styleMap } from 'lit/directives/style-map.js';
 
 @customElement("layer-display")
 export class LayerDisplay extends LitElement {
@@ -32,7 +33,7 @@ export class LayerDisplay extends LitElement {
     }
 
     .tile img {
-        max-width: 100%;
+        width: 100%;
     }
   `;
 
@@ -68,6 +69,10 @@ export class LayerDisplay extends LitElement {
         return tiles;
     }
 
+    setZoom(ev) {
+        this.zoom = ev.target.value;
+    }
+
     render() {
         const gridStyles = {
             'grid-template-rows': `repeat(${this.sideLength}, 1fr)`,
@@ -76,6 +81,7 @@ export class LayerDisplay extends LitElement {
         };
         return html`
             <div class="wrapper">
+                <input type="number" .value=${live(this.zoom.toString())} min="0" @change=${this.setZoom} />
                 <div>
                     <span>Zoom Level: ${this.zoom}</span>
                 </div>
