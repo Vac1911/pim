@@ -1,31 +1,76 @@
 #!/usr/bin/env node
 
+const utils = require("../tileserver/utils");
+
 const path = require('path');
 const chalk = require('chalk');
 const log = console.log;
 const Map = require('../tileserver/builder/map');
+const {mix} = require("../tileserver/color/mix");
 
 const storagePath = path.resolve(__dirname, '../public/tilemap');
+const dataPath = path.resolve(__dirname, '../tileserver/data');
 const map = new Map(4, storagePath)
 
-log(chalk.bgBlue.bold.black(` Loading Features `));
+run();
 
-const nations = require('../tileserver/data/nations').features.filter(n => n.properties.NAME == 'Canada');
-log(chalk.blue(`Loading Nations (${nations.length})`));
-for(const nation of nations) {
-    map.createFeature(nation, {strokeStyle: 'white'});
+async function run() {
+    await compute();
+    await load();
+    await build();
 }
 
-// const rivers = require('../tileserver/data/rivers').features;
-// log(chalk.blue(`Loading Rivers (${rivers.length})`));
-// for(const river of rivers) {
-//     map.createFeature(river, {strokeStyle: '#0978AB'});
-// }
+async function compute() {
+    log(chalk.bgYellow.bold.black(` Computing Data `));
+    const dataTempPath = dataPath + '/temp'
+    let msg = '';
+        input = dataPath + '/nations.json',
+        output = dataTempPath + '/borders.json';
+    msg = await utils.execCmd(`mapshaper -i ${input} -innerlines -o ${output}`);
+    log(msg);
 
-// const lakes = require('../tileserver/data/lakes').features;
-// log(chalk.blue(`Loading Lakes (${lakes.length})`));
-// for(const lake of lakes) {
-//     map.createFeature(lake, {strokeStyle: '#0978AB', fillStyle: '#C6ECFF'});
-// }
+    output = dataTempPath + '/land.json';
+    msg = await utils.execCmd(`mapshaper -i ${input} -dissolve2 -o ${output}`);
+    log(msg);
+}
 
-map.run();
+async function load() {
+    log(chalk.bgBlue.bold.black(` Loading Features `));
+    const palette = {
+        river: '#0978AB',
+        water: mix('0978AB', '00000', 50),
+        land: '#00000',
+        border: 'white',
+    }
+
+    map.options = {bgColor: palette.water};
+
+    const land = require('../tileserver/data/temp/land').geometries
+    log(chalk.blue(`Loading Land`));
+    for(const feature of land) {
+        map.createFeature(feature, {fillStyle: palette.land});
+    }
+
+    const rivers = require('../tileserver/data/rivers').features;
+    log(chalk.blue(`Loading Rivers (${rivers.length})`));
+    for(const river of rivers) {
+        map.createFeature(river, {strokeStyle: palette.river});
+    }
+
+    const lakes = require('../tileserver/data/lakes').features;
+    log(chalk.blue(`Loading Lakes (${lakes.length})`));
+    for(const lake of lakes) {
+        map.createFeature(lake, {fillStyle: palette.water});
+    }
+
+    const borders = require('../tileserver/data/temp/borders').geometries
+    log(chalk.blue(`Loading Borders`));
+    for(const border of borders) {
+        map.createFeature(border, {strokeStyle: palette.border, lineWidth: 2});
+    }
+}
+
+async function build() {
+    log('\n' + chalk.bold.bgGreen.black(` Starting Build `));
+    map.run();
+}

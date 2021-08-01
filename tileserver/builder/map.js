@@ -19,7 +19,6 @@ module.exports = class Map {
         this.storagePath = storagePath;
     }
     async run() {
-        log('\n' + chalk.bold.bgGreen.black(` Starting Build `));
         await this.clearStorage();
         this.buildLayers();
         this.drawLayers();
@@ -29,7 +28,7 @@ module.exports = class Map {
     }
     buildLayers() {
         for (const z of Array(this.maxZoom).keys()) {
-            this.layers[z] = new layer_1.Layer(z);
+            this.layers[z] = new layer_1.Layer(z, this.options);
         }
     }
     drawLayers() {
@@ -45,13 +44,14 @@ module.exports = class Map {
         }
     }
     createFeature(feature, ...params) {
+        const geometry = feature.type == 'Feature' ? feature.geometry : feature;
         let paths = [];
-        if (feature.geometry.type == 'MultiPolygon')
-            paths = feature.geometry.coordinates;
-        else if (feature.geometry.type == 'Polygon')
-            paths = [feature.geometry.coordinates];
-        else if (feature.geometry.type == 'LineString')
-            paths = [[feature.geometry.coordinates]];
+        if (geometry.type == 'MultiPolygon')
+            paths = geometry.coordinates;
+        else if (geometry.type == 'Polygon')
+            paths = [geometry.coordinates];
+        else if (geometry.type == 'LineString')
+            paths = [[geometry.coordinates]];
         for (let path of paths) {
             path = path[0].map(([x, y]) => this.coordToWorld({ x: x, y: y }));
             this.features.push(new feature_1.Feature(path, ...params));

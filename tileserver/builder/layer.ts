@@ -11,12 +11,14 @@ const TILE_SIZE: number = 512;
 
 export class Layer {
     zoom: number;
+    options: object;
     storagePath!: string;
     tiles: Tile[][] = [];
     features: Feature[] = [];
 
-    constructor(zoom: number) {
+    constructor(zoom: number, options: object = {}) {
         this.zoom = zoom;
+        this.options = options;
     }
 
     run() {
@@ -29,7 +31,7 @@ export class Layer {
         for (const x of Array(length).keys()) {
             let tileColumn: Tile[] = [];
             for (const y of Array(length).keys()) {
-                tileColumn[y] = new Tile(x, y, this.zoom);
+                tileColumn[y] = new Tile(x, y, this.zoom, this.options);
             }
             this.tiles[x] = tileColumn;
         }

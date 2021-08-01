@@ -16,18 +16,20 @@ export class Tile {
     x: number;
     y: number;
     z: number;
+    options: object;
     canvas: Canvas;
     context: NodeCanvasRenderingContext2D;
 
-    constructor(x: number, y: number, z: number) {
+    constructor(x: number, y: number, z: number, options: object = {}) {
         this.x = x;
         this.y = y;
         this.z = z;
-        
+        this.options = options;
+
         this.canvas = createCanvas(TILE_SIZE, TILE_SIZE)
         this.context = this.canvas.getContext('2d');
         this.context.save();
-        this.context.fillStyle = '#000';
+        this.context.fillStyle = options['bgColor'] ?? '#000';
         this.context.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
         this.context.restore();
     }
@@ -40,23 +42,7 @@ export class Tile {
 
     draw(feat: Feature) {
         const path: Point[] = feat.layerData.map(this.layerToCanvas.bind(this));
-        this.applyStyles(feat.styles);
-
-        this.context.beginPath();
-
-        for(const i in path) {
-            this.context[(i === '0') ? 'moveTo' : 'lineTo'](path[i].x, path[i].y)
-        }
-        
-        if(feat.styles.fillStyle) this.context.fill();
-        if(feat.styles.strokeStyle) this.context.stroke();
-    }
-
-    applyStyles(styles: DrawStyle) {
-        this.context.restore();
-        for(const [key, val] of Object.entries(styles)) {
-            this.context[key] = val;
-        }
+        feat.draw(this.context, path);
     }
 
     writeImage(file: string) {

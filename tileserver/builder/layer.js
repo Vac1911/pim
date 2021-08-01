@@ -9,10 +9,11 @@ const DEGREES_TO_RADIANS = PI / 180;
 const RADIANS_TO_DEGREES = 180 / PI;
 const TILE_SIZE = 512;
 class Layer {
-    constructor(zoom) {
+    constructor(zoom, options = {}) {
         this.tiles = [];
         this.features = [];
         this.zoom = zoom;
+        this.options = options;
     }
     run() {
         this.buildTiles();
@@ -23,7 +24,7 @@ class Layer {
         for (const x of Array(length).keys()) {
             let tileColumn = [];
             for (const y of Array(length).keys()) {
-                tileColumn[y] = new tile_1.Tile(x, y, this.zoom);
+                tileColumn[y] = new tile_1.Tile(x, y, this.zoom, this.options);
             }
             this.tiles[x] = tileColumn;
         }

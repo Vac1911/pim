@@ -11,14 +11,15 @@ const DEGREES_TO_RADIANS = PI / 180;
 const RADIANS_TO_DEGREES = 180 / PI;
 const TILE_SIZE = 512;
 class Tile {
-    constructor(x, y, z) {
+    constructor(x, y, z, options = {}) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.options = options;
         this.canvas = createCanvas(TILE_SIZE, TILE_SIZE);
         this.context = this.canvas.getContext('2d');
         this.context.save();
-        this.context.fillStyle = '#000';
+        this.context.fillStyle = options['bgColor'] ?? '#000';
         this.context.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
         this.context.restore();
     }
@@ -29,21 +30,7 @@ class Tile {
     }
     draw(feat) {
         const path = feat.layerData.map(this.layerToCanvas.bind(this));
-        this.applyStyles(feat.styles);
-        this.context.beginPath();
-        for (const i in path) {
-            this.context[(i === '0') ? 'moveTo' : 'lineTo'](path[i].x, path[i].y);
-        }
-        if (feat.styles.fillStyle)
-            this.context.fill();
-        if (feat.styles.strokeStyle)
-            this.context.stroke();
-    }
-    applyStyles(styles) {
-        this.context.restore();
-        for (const [key, val] of Object.entries(styles)) {
-            this.context[key] = val;
-        }
+        feat.draw(this.context, path);
     }
     writeImage(file) {
         if (!fs.existsSync(path.dirname(file)))
