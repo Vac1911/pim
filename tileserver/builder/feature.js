@@ -7,10 +7,35 @@ class Feature {
         if (styles !== undefined)
             this.styles = styles;
     }
+    static fromGeoJson(geoJson) {
+    }
     scaleTo(zoomLevel) {
         const scalar = 2 ** zoomLevel;
-        this.layerData = this.worldData.map((p) => ({ x: p.x * scalar, y: p.y * scalar }));
+        this.layerData = [];
+        let maxX = undefined, minX = undefined, maxY = undefined, minY = undefined;
+        for (const p of this.worldData) {
+            const point = { x: p.x * scalar, y: p.y * scalar };
+            if (maxX === undefined || point.x > maxX)
+                maxX = point.x;
+            if (minX === undefined || point.x < minX)
+                minX = point.x;
+            if (maxY === undefined || point.y > maxY)
+                maxY = point.y;
+            if (minY === undefined || point.y < minY)
+                minY = point.y;
+            this.layerData.push(point);
+        }
+        this.layerBbox = { maxX: maxX ?? 0, minX: minX ?? 0, maxY: maxY ?? 0, minY: minY ?? 0 };
         return this;
+    }
+    inBox(box) {
+        // no horizontal overlap
+        if (this.layerBbox.minX >= box.maxX || box.minX >= this.layerBbox.maxX)
+            return false;
+        // no vertical overlap
+        if (this.layerBbox.minY >= box.maxY || box.minY >= this.layerBbox.maxY)
+            return false;
+        return true;
     }
     draw(context, pathData) {
         this.setStyles(context);

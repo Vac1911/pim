@@ -54,7 +54,7 @@ module.exports = class Map {
         }
     }
 
-    createFeature(feature, ...params) {
+    addJsonFeature(feature, ...params) {
         const geometry = feature.type == 'Feature' ? feature.geometry : feature;
 
         let paths: any[] = [];
@@ -64,6 +64,8 @@ module.exports = class Map {
             paths = [geometry.coordinates];
         else if(geometry.type == 'LineString')
             paths = [[geometry.coordinates]];
+        else if(geometry.type == 'MultiLineString')
+            paths = geometry.coordinates.map(line => [line]);
 
         for(let path of paths) {
             path = path[0].map(([x, y]) =>    this.coordToWorld({x: x, y: y}));

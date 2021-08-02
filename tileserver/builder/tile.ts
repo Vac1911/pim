@@ -1,5 +1,5 @@
-import {Canvas, NodeCanvasRenderingContext2D} from "canvas";
-import type { DrawStyle, Point } from './interfaces'
+import { Canvas, NodeCanvasRenderingContext2D } from "canvas";
+import type { BBox, DrawStyle, Point } from './interfaces'
 import { Feature } from './feature'
 const fs = require('fs');
 const path = require('path');
@@ -34,13 +34,24 @@ export class Tile {
         this.context.restore();
     }
 
-     layerToCanvas(p: Point) {
+    get boundingBox(): BBox {
+        return {
+            minX: this.x * TILE_SIZE,
+            minY: this.y * TILE_SIZE,
+            maxX: (this.x + 1) * TILE_SIZE,
+            maxY: (this.y + 1) * TILE_SIZE,
+        }
+    }
+
+    layerToCanvas(p: Point): Point {
         const x: number = p.x - this.x * TILE_SIZE;
         const y: number = p.y - this.y * TILE_SIZE;
-        return {x: x, y: y};
+        return { x: x, y: y };
     }
 
     draw(feat: Feature) {
+        if(!feat.inBox(this.boundingBox)) return false;
+        
         const path: Point[] = feat.layerData.map(this.layerToCanvas.bind(this));
         feat.draw(this.context, path);
     }

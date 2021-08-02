@@ -6,7 +6,7 @@ if (document.getElementById('map'))
     initMap();
 
 function initMap() {
-    var base = TileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+    var base = TileLayer('/tilemap/{z}/{x}/{y}.png', {
         maxZoom: 18,
         id: 'mapbox/streets-v11',
         tileSize: 512,
@@ -14,7 +14,7 @@ function initMap() {
     });
     // Overlay layers (TMS)
     var lyr = TileLayer('./{z}/{x}/{y}.png', { tms: true, opacity: 0.7, attribution: "", minZoom: 1, maxZoom: 6 });
-    const map = LeafletMap(document.getElementById('map'), { layers: [base] }).setView([51.505, -0.09], 10);
+    const map = LeafletMap(document.getElementById('map'), { layers: [base] }).setView([51.505, -0.09], 5);
     control.scale().addTo(map);
     control.layers({ "Base": base }, { "Layer": lyr }, { collapsed: false }).addTo(map);
     let markers = [],

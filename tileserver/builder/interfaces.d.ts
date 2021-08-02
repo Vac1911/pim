@@ -23,3 +23,10 @@ export interface Point {
     x: number;
     y: number;
 }
+
+export interface BBox {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+}

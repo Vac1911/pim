@@ -10,7 +10,7 @@ const {mix} = require("../tileserver/color/mix");
 
 const storagePath = path.resolve(__dirname, '../public/tilemap');
 const dataPath = path.resolve(__dirname, '../tileserver/data');
-const map = new Map(4, storagePath)
+const map = new Map(5, storagePath)
 
 run();
 
@@ -48,25 +48,25 @@ async function load() {
     const land = require('../tileserver/data/temp/land').geometries
     log(chalk.blue(`Loading Land`));
     for(const feature of land) {
-        map.createFeature(feature, {fillStyle: palette.land});
+        map.addJsonFeature(feature, {fillStyle: palette.land});
     }
 
     const rivers = require('../tileserver/data/rivers').features;
     log(chalk.blue(`Loading Rivers (${rivers.length})`));
     for(const river of rivers) {
-        map.createFeature(river, {strokeStyle: palette.river});
+        map.addJsonFeature(river, {strokeStyle: palette.river, lineWidth: 0.5});
     }
 
     const lakes = require('../tileserver/data/lakes').features;
     log(chalk.blue(`Loading Lakes (${lakes.length})`));
     for(const lake of lakes) {
-        map.createFeature(lake, {fillStyle: palette.water});
+        map.addJsonFeature(lake, {fillStyle: palette.water});
     }
 
     const borders = require('../tileserver/data/temp/borders').geometries
     log(chalk.blue(`Loading Borders`));
     for(const border of borders) {
-        map.createFeature(border, {strokeStyle: palette.border, lineWidth: 2});
+        map.addJsonFeature(border, {strokeStyle: palette.border, lineWidth: 1});
     }
 }
 

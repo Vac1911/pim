@@ -23,12 +23,22 @@ class Tile {
         this.context.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
         this.context.restore();
     }
+    get boundingBox() {
+        return {
+            minX: this.x * TILE_SIZE,
+            minY: this.y * TILE_SIZE,
+            maxX: (this.x + 1) * TILE_SIZE,
+            maxY: (this.y + 1) * TILE_SIZE,
+        };
+    }
     layerToCanvas(p) {
         const x = p.x - this.x * TILE_SIZE;
         const y = p.y - this.y * TILE_SIZE;
         return { x: x, y: y };
     }
     draw(feat) {
+        if (!feat.inBox(this.boundingBox))
+            return false;
         const path = feat.layerData.map(this.layerToCanvas.bind(this));
         feat.draw(this.context, path);
     }
