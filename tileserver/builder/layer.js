@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Layer = void 0;
 const tile_1 = require("./tile");
+const chalk = require('chalk');
+const log = console.log;
 // CONSTANTS
 const PI = Math.PI;
 const PI_4 = PI / 4;

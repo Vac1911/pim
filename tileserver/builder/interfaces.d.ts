@@ -1,4 +1,5 @@
 export interface DrawStyle {
+    name?: string;
     strokeStyle?: string | CanvasGradient | CanvasPattern;
     fillStyle?: string | CanvasGradient | CanvasPattern;
     globalAlpha?: number;

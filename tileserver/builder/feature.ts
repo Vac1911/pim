@@ -1,5 +1,10 @@
-import type { BBox, DrawStyle, Point } from './interfaces'
+import type {DrawStyle, Point} from './interfaces'
+import type {BBox} from "@turf/turf";
 import {NodeCanvasRenderingContext2D} from "canvas";
+import {LineString, Polygon} from "@turf/turf";
+
+const {lineString, polygon} = require('@turf/helpers');
+const bboxClip = require('@turf/bbox-clip');
 
 export class Feature {
     worldData: Point[];
@@ -13,38 +18,51 @@ export class Feature {
     }
 
     static fromGeoJson(geoJson: object) {
-        
+
+    }
+
+    getGeom() {
+        const path = this.layerData.map(p => [p.x, p.y]);
+        if(this.styles.fillStyle) return polygon([path]);
+        else return lineString(path);
+    }
+
+    getPath(geom: Polygon|LineString) {
+        if(geom.type === "Polygon") return getCoords([path]);
+        else return lineString(path);
     }
 
     scaleTo(zoomLevel: number) {
         const scalar: number = 2 ** zoomLevel;
         this.layerData = [];
 
-        let maxX: number|undefined = undefined,
-            minX: number|undefined = undefined,
-            maxY: number|undefined = undefined,
-            minY: number|undefined = undefined;
+        let maxX: number | undefined = undefined,
+            minX: number | undefined = undefined,
+            maxY: number | undefined = undefined,
+            minY: number | undefined = undefined;
 
-        for(const p of this.worldData) {
+        for (const p of this.worldData) {
             const point: Point = {x: p.x * scalar, y: p.y * scalar};
-            if(maxX === undefined || point.x > maxX) maxX = point.x;
-            if(minX === undefined || point.x < minX) minX = point.x;
-            if(maxY === undefined || point.y > maxY) maxY = point.y;
-            if(minY === undefined || point.y < minY) minY = point.y;
+            if (maxX === undefined || point.x > maxX) maxX = point.x;
+            if (minX === undefined || point.x < minX) minX = point.x;
+            if (maxY === undefined || point.y > maxY) maxY = point.y;
+            if (minY === undefined || point.y < minY) minY = point.y;
             this.layerData.push(point);
         }
-        this.layerBbox = { maxX: maxX ?? 0, minX: minX ?? 0, maxY: maxY ?? 0, minY: minY ?? 0}
+        this.layerBbox = [minX ?? 0, minY ?? 0,  maxX ?? 0, maxY ?? 0];
         return this;
+    }
+
+    clip(box: BBox) {
+        return bboxClip(this.getGeom(), box);
     }
 
     inBox(box: BBox): boolean {
         // no horizontal overlap
-        if (this.layerBbox.minX >= box.maxX || box.minX >= this.layerBbox.maxX) return false;
-    
+        if (this.layerBbox[0] >= box[2] || box[0] >= this.layerBbox[2]) return false;
+
         // no vertical overlap
-        if (this.layerBbox.minY >= box.maxY || box.minY >= this.layerBbox.maxY) return false;
-    
-        return true;
+        return !(this.layerBbox[1] >= box[3] || box[1] >= this.layerBbox[3]);
     }
 
     draw(context: NodeCanvasRenderingContext2D, pathData: Point[]) {
@@ -55,20 +73,20 @@ export class Feature {
 
     setStyles(context: NodeCanvasRenderingContext2D) {
         context.restore();
-        for(const [key, val] of Object.entries(this.styles)) {
+        for (const [key, val] of Object.entries(this.styles)) {
             context[key] = val;
         }
     }
 
     makePath(context: NodeCanvasRenderingContext2D, pathData: Point[]) {
         context.beginPath();
-        for(const i in pathData) {
+        for (const i in pathData) {
             context[(i === '0') ? 'moveTo' : 'lineTo'](pathData[i].x, pathData[i].y)
         }
     }
 
     drawPath(context: NodeCanvasRenderingContext2D) {
-        if(this.styles.fillStyle) context.fill();
-        if(this.styles.strokeStyle) context.stroke();
+        if (this.styles.fillStyle) context.fill();
+        if (this.styles.strokeStyle) context.stroke();
     }
 }

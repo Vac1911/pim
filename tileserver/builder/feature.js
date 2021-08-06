@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Feature = void 0;
+const { lineString, polygon } = require('@turf/helpers');
+const bboxClip = require('@turf/bbox-clip');
 class Feature {
     constructor(worldData, styles) {
         this.worldData = worldData;
@@ -8,6 +10,19 @@ class Feature {
             this.styles = styles;
     }
     static fromGeoJson(geoJson) {
+    }
+    getGeom() {
+        const path = this.layerData.map(p => [p.x, p.y]);
+        if (this.styles.fillStyle)
+            return polygon([path]);
+        else
+            return lineString(path);
+    }
+    getPath(geom) {
+        if (geom.type === "Polygon")
+            return getCoords([path]);
+        else
+            return lineString(path);
     }
     scaleTo(zoomLevel) {
         const scalar = 2 ** zoomLevel;
@@ -25,17 +40,18 @@ class Feature {
                 minY = point.y;
             this.layerData.push(point);
         }
-        this.layerBbox = { maxX: maxX ?? 0, minX: minX ?? 0, maxY: maxY ?? 0, minY: minY ?? 0 };
+        this.layerBbox = [minX ?? 0, minY ?? 0, maxX ?? 0, maxY ?? 0];
         return this;
+    }
+    clip(box) {
+        return bboxClip(this.getGeom(), box);
     }
     inBox(box) {
         // no horizontal overlap
-        if (this.layerBbox.minX >= box.maxX || box.minX >= this.layerBbox.maxX)
+        if (this.layerBbox[0] >= box[2] || box[0] >= this.layerBbox[2])
             return false;
         // no vertical overlap
-        if (this.layerBbox.minY >= box.maxY || box.minY >= this.layerBbox.maxY)
-            return false;
-        return true;
+        return !(this.layerBbox[1] >= box[3] || box[1] >= this.layerBbox[3]);
     }
     draw(context, pathData) {
         this.setStyles(context);

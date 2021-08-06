@@ -38,7 +38,7 @@ module.exports = class Map {
             }
         }
         for (const z in this.layers) {
-            log(chalk.green(`Drawing Layer ${z}`));
+            log(chalk.green(`Layer ${z} (${(2 ** parseInt(z)) ** 2}) Tiles`));
             this.layers[z].run();
             this.layers[z].writeTo(`${this.storagePath}`);
         }

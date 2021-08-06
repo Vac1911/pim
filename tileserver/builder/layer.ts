@@ -2,6 +2,9 @@ import type { Point } from './interfaces'
 import { Feature } from './feature'
 import { Tile } from './tile'
 
+const chalk = require('chalk');
+const log = console.log;
+
 // CONSTANTS
 const PI: number = Math.PI;
 const PI_4: number = PI / 4;
