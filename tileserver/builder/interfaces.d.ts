@@ -20,6 +20,11 @@ export interface DrawStyle {
     imageSmoothingEnabled?: boolean;
 }
 
+export interface MapOptions {
+    tileSize: number;
+    bgColor: string;
+}
+
 export interface Point {
     x: number;
     y: number;

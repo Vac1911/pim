@@ -10,13 +10,17 @@ const PI = Math.PI;
 const PI_4 = PI / 4;
 const DEGREES_TO_RADIANS = PI / 180;
 const RADIANS_TO_DEGREES = 180 / PI;
-const LAYER_SIZE = 512;
 module.exports = class Map {
-    constructor(maxZoom, storagePath) {
+    constructor(maxZoom, storagePath, options = {}) {
+        this.options = {
+            tileSize: 512,
+            bgColor: 'black',
+        };
         this.layers = [];
         this.features = [];
         this.maxZoom = maxZoom;
         this.storagePath = storagePath;
+        this.options = Object.assign(this.options, options);
     }
     async run() {
         await this.clearStorage();
@@ -75,14 +79,14 @@ module.exports = class Map {
         // lat = -lat;
         const lambda2 = lng * DEGREES_TO_RADIANS;
         const phi2 = lat * DEGREES_TO_RADIANS;
-        const x = (LAYER_SIZE * (lambda2 + PI)) / (2 * PI);
-        const y = (LAYER_SIZE * (PI + Math.log(Math.tan(PI_4 + phi2 * 0.5)))) / (2 * PI);
-        return { x: x, y: Math.abs(y - 512) };
+        const x = (this.options.tileSize * (lambda2 + PI)) / (2 * PI);
+        const y = (this.options.tileSize * (PI + Math.log(Math.tan(PI_4 + phi2 * 0.5)))) / (2 * PI);
+        return { x: x, y: Math.abs(y - this.options.tileSize) };
     }
     // Unproject world point [x,y] on map onto {lat, lon} on sphere
     worldToLngLat({ x, y }) {
-        const lambda2 = (x / LAYER_SIZE) * (2 * PI) - PI;
-        const phi2 = 2 * (Math.atan(Math.exp((y / LAYER_SIZE) * (2 * PI) - PI)) - PI_4);
+        const lambda2 = (x / this.options.tileSize) * (2 * PI) - PI;
+        const phi2 = 2 * (Math.atan(Math.exp((y / this.options.tileSize) * (2 * PI) - PI)) - PI_4);
         return [lambda2 * RADIANS_TO_DEGREES, phi2 * RADIANS_TO_DEGREES];
     }
 };

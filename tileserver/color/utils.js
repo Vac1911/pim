@@ -1,4 +1,4 @@
-const d2h = d => d.toString(16); // convert a decimal value to hex
+const d2h = d => d.toString(16).padEnd(2, '0'); // convert a decimal value to hex
 const h2d = h => parseInt(h, 16); // convert a hex value to decimal
 module.exports = {
     mix: function (color_1, color_2, weight) {
@@ -17,7 +17,7 @@ module.exports = {
         return color; // PROFIT!
     },
     bitValue: function (h, s, l) {
-        return this.rgb2hex(...this.hsl2rgb(h, s, l));
+        return this.rgb2hex(...this.hsl2rgb(h * 360, s, l).map(n => Math.floor(n)));
     },
     rgb2hex: function (r, g, b) {
         return `#${d2h(r)}${d2h(g)}${d2h(b)}`;
@@ -33,6 +33,6 @@ module.exports = {
     hsl2rgb: function (h, s, l) {
         let a = s * Math.min(l, 1 - l);
         let f = (n, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-        return [f(0), f(8), f(4)];
+        return [f(0) * 255, f(8) * 255, f(4) * 255];
     }
 };

@@ -2,22 +2,25 @@
 
 const utils = require("../tileserver/utils");
 
+const colorUtils = require("../tileserver/color/utils");
+
 const path = require('path');
 const chalk = require('chalk');
 const log = console.log;
+const sortBy = require('lodash/sortBy');
 const Map = require('../tileserver/builder/map');
-const {mix} = require("../tileserver/color/mix");
+const {geometries: land} = require("../tileserver/data/temp/land");
 
 const storagePath = path.resolve(__dirname, '../public/tilemap');
 const dataPath = path.resolve(__dirname, '../tileserver/data');
-const map = new Map(4, storagePath)
+let map;
 
 run();
 
 async function run() {
-    await compute();
-    await load();
-    await build();
+    // await compute();
+    // await load();
+    // await build();
     await bit();
 }
 
@@ -44,7 +47,7 @@ async function load() {
         border: '#646464',
     }
 
-    map.options = {bgColor: palette.water};
+    map = new Map(4, storagePath, {bgColor: palette.water});
 
     const land = require('../tileserver/data/temp/land').geometries
     log(chalk.blue(`Loading Land`));
@@ -73,10 +76,17 @@ async function load() {
 
 async function build() {
     log('\n' + chalk.bold.bgGreen.black(` Starting Build `));
-    map.run();
+    await map.run();
 }
 
 async function bit() {
-    log('\n' + chalk.bold.bgGreen.black(` Starting Build `));
-    map.run();
+    log('\n' + chalk.bold.bgGreen.black(` Starting Bitmap `));
+    const nations = require('../tileserver/data/vector/nations.json').features;
+    let bitKey = Object.fromEntries(sortBy(nations.map(n => n.properties.NAME)).map((nation, i) => [nation, colorUtils.bitValue((i / nations.length), 1, 0.75)]));
+
+    let bitmap = new Map(3, path.resolve(__dirname, '../public/bitmap'));
+    for(const nation of nations) {
+        bitmap.addJsonFeature(nation, {fillStyle: bitKey[nation.properties.NAME], name: 'nations'});
+    }
+    await bitmap.run();
 }

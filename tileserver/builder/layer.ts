@@ -1,25 +1,22 @@
 import type { Point } from './interfaces'
 import { Feature } from './feature'
 import { Tile } from './tile'
+import {MapOptions} from "./interfaces";
 
 const chalk = require('chalk');
 const log = console.log;
 
 // CONSTANTS
 const PI: number = Math.PI;
-const PI_4: number = PI / 4;
-const DEGREES_TO_RADIANS: number = PI / 180;
-const RADIANS_TO_DEGREES: number = 180 / PI;
-const TILE_SIZE: number = 512;
 
 export class Layer {
     zoom: number;
-    options: object;
+    options: MapOptions;
     storagePath!: string;
     tiles: Tile[][] = [];
     features: Feature[] = [];
 
-    constructor(zoom: number, options: object = {}) {
+    constructor(zoom: number, options: MapOptions) {
         this.zoom = zoom;
         this.options = options;
     }
@@ -59,7 +56,7 @@ export class Layer {
     writeTiles() {
         for (const x in this.tiles) {
             for (const y in this.tiles[x]) {
-                this.tiles[x][y].writeImage(`${this.storagePath}/${this.zoom}/${x}/${y}.png`);
+                this.tiles[x][y].writeImage(`${this.storagePath}/${this.zoom}/${x}/${y}.raw`);
             }
         }
     }

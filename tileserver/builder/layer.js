@@ -6,12 +6,8 @@ const chalk = require('chalk');
 const log = console.log;
 // CONSTANTS
 const PI = Math.PI;
-const PI_4 = PI / 4;
-const DEGREES_TO_RADIANS = PI / 180;
-const RADIANS_TO_DEGREES = 180 / PI;
-const TILE_SIZE = 512;
 class Layer {
-    constructor(zoom, options = {}) {
+    constructor(zoom, options) {
         this.tiles = [];
         this.features = [];
         this.zoom = zoom;
@@ -48,7 +44,7 @@ class Layer {
     writeTiles() {
         for (const x in this.tiles) {
             for (const y in this.tiles[x]) {
-                this.tiles[x][y].writeImage(`${this.storagePath}/${this.zoom}/${x}/${y}.png`);
+                this.tiles[x][y].writeImage(`${this.storagePath}/${this.zoom}/${x}/${y}.raw`);
             }
         }
     }
