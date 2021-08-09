@@ -18,12 +18,10 @@ class Feature {
         else
             return lineString(path);
     }
-    getPath(geom) {
-        if (geom.type === "Polygon")
-            return getCoords([path]);
-        else
-            return lineString(path);
-    }
+    // getPath(geom: Polygon|LineString) {
+    //     if(geom.type === "Polygon") return getCoords([path]);
+    //     else return lineString(path);
+    // }
     scaleTo(zoomLevel) {
         const scalar = 2 ** zoomLevel;
         this.layerData = [];

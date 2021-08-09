@@ -21,5 +21,24 @@ module.exports = {
 
         return color; // PROFIT!
     },
-
+    bitValue: function(h: number, s: number, l: number) {
+        return this.rgb2hex(...this.hsl2rgb(h, s, l));
+    },
+    rgb2hex: function(r: number, g: number, b: number) {
+        return `#${d2h(r)}${d2h(g)}${d2h(b)}`;
+    },
+    /**
+     * Converts an HSL color value to RGB. Conversion formula
+     * adapted from https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB_alternative.
+     * @param h
+     * @param s
+     * @param l
+     * @returns {[*, *, *]}
+     */
+    hsl2rgb: function (h: number, s: number, l: number)
+    {
+        let a= s*Math.min(l,1-l);
+        let f= (n,k=(n+h/30)%12) => l - a*Math.max(Math.min(k-3,9-k,1),-1);
+        return [f(0),f(8),f(4)];
+    }
 }

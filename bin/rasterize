@@ -18,6 +18,7 @@ async function run() {
     await compute();
     await load();
     await build();
+    await bit();
 }
 
 async function compute() {
@@ -71,6 +72,11 @@ async function load() {
 }
 
 async function build() {
+    log('\n' + chalk.bold.bgGreen.black(` Starting Build `));
+    map.run();
+}
+
+async function bit() {
     log('\n' + chalk.bold.bgGreen.black(` Starting Build `));
     map.run();
 }

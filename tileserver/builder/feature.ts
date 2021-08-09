@@ -27,10 +27,10 @@ export class Feature {
         else return lineString(path);
     }
 
-    getPath(geom: Polygon|LineString) {
-        if(geom.type === "Polygon") return getCoords([path]);
-        else return lineString(path);
-    }
+    // getPath(geom: Polygon|LineString) {
+    //     if(geom.type === "Polygon") return getCoords([path]);
+    //     else return lineString(path);
+    // }
 
     scaleTo(zoomLevel: number) {
         const scalar: number = 2 ** zoomLevel;
