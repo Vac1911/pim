@@ -58,7 +58,7 @@ export class Tile {
 
     writeImage(file: string) {
         if (!fs.existsSync(path.dirname(file))) fs.mkdirSync(path.dirname(file), { recursive: true });
-        fs.writeFileSync(file, this.canvas.toBuffer('raw'));
+        fs.writeFileSync(file, this.canvas.toBuffer('image/png'));
         // console.log('wrote: ' + file)
     }
 }
