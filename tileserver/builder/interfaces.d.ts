@@ -23,6 +23,7 @@ export interface DrawStyle {
 export interface MapOptions {
     tileSize: number;
     bgColor: string;
+    antialias?: 'default' | 'gray' | 'none' | 'subpixel';
 }
 
 export interface Point {

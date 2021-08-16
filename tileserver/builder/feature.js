@@ -5,6 +5,7 @@ const { lineString, polygon } = require('@turf/helpers');
 const bboxClip = require('@turf/bbox-clip');
 class Feature {
     constructor(worldData, styles) {
+        // TODO: pass geometry variable to constructor and parse worldData here
         this.worldData = worldData;
         if (styles !== undefined)
             this.styles = styles;

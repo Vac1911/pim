@@ -44,7 +44,7 @@ class Layer {
     writeTiles() {
         for (const x in this.tiles) {
             for (const y in this.tiles[x]) {
-                this.tiles[x][y].writeImage(`${this.storagePath}/${this.zoom}/${x}/${y}.raw`);
+                this.tiles[x][y].writeImage(`${this.storagePath}/${this.zoom}/${x}/${y}.png`);
             }
         }
     }

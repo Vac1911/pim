@@ -12,6 +12,8 @@ class Tile {
         this.options = options;
         this.canvas = createCanvas(this.options.tileSize, this.options.tileSize);
         this.context = this.canvas.getContext('2d');
+        if (options.hasOwnProperty('antialias'))
+            this.context.antialias = options.antialias ?? 'default';
         this.context.save();
         this.context.fillStyle = options.bgColor;
         this.context.fillRect(0, 0, this.options.tileSize, this.options.tileSize);
@@ -43,7 +45,7 @@ class Tile {
     writeImage(file) {
         if (!fs.existsSync(path.dirname(file)))
             fs.mkdirSync(path.dirname(file), { recursive: true });
-        fs.writeFileSync(file, this.canvas.toBuffer('raw'));
+        fs.writeFileSync(file, this.canvas.toBuffer('image/png'));
         // console.log('wrote: ' + file)
     }
 }
