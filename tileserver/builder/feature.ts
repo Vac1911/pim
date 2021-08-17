@@ -7,12 +7,14 @@ const {lineString, polygon} = require('@turf/helpers');
 const bboxClip = require('@turf/bbox-clip');
 
 export class Feature {
+    geometry;
     worldData: Point[];
     layerData!: Point[];
     layerBbox!: BBox;
     styles!: DrawStyle;
 
     constructor(worldData: Point[], styles?: DrawStyle) {
+        // TODO: pass geometry variable to constructor and parse worldData here
         this.worldData = worldData;
         if (styles !== undefined) this.styles = styles;
     }

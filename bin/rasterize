@@ -8,6 +8,7 @@ const path = require('path');
 const chalk = require('chalk');
 const log = console.log;
 const sortBy = require('lodash/sortBy');
+const fs = require('fs');
 const Map = require('../tileserver/builder/map');
 const {geometries: land} = require("../tileserver/data/temp/land");
 
@@ -18,10 +19,10 @@ let map;
 run();
 
 async function run() {
-    // await compute();
-    // await load();
-    // await build();
-    await bit();
+    await compute();
+    await load();
+    await build();
+    // await bit();
 }
 
 async function compute() {
@@ -45,6 +46,7 @@ async function load() {
         water:'#78bced',
         land: '#ffebc2',
         border: '#646464',
+        marker: '#d500ff',
     }
 
     map = new Map(4, storagePath, {bgColor: palette.water});
@@ -72,6 +74,12 @@ async function load() {
     for(const border of borders) {
         map.addJsonFeature(border, {strokeStyle: palette.border, lineWidth: 1, name: 'border'});
     }
+
+    const cities = require('../tileserver/data/vector/cities').features.filter(f => f.properties.scalerank == 0)
+    log(chalk.blue(`Loading Cities (${cities.length})`));
+    for(const city of cities) {
+        map.addMarker(city.geometry.coordinates, {fillStyle: palette.marker, name: 'city'});
+    }
 }
 
 async function build() {
@@ -84,9 +92,11 @@ async function bit() {
     const nations = require('../tileserver/data/vector/nations.json').features;
     let bitKey = Object.fromEntries(sortBy(nations.map(n => n.properties.NAME)).map((nation, i) => [nation, colorUtils.bitValue((i / nations.length), 1, 0.75)]));
 
-    let bitmap = new Map(3, path.resolve(__dirname, '../public/bitmap'), {antialias: 'none'});
+    const bitmapDir = path.resolve(__dirname, '../public/bitmap');
+    let bitmap = new Map(3, bitmapDir, {antialias: 'none'});
     for(const nation of nations) {
         bitmap.addJsonFeature(nation, {fillStyle: bitKey[nation.properties.NAME], name: 'nations'});
     }
     await bitmap.run();
+    await fs.writeFile(bitmapDir + '/key.json', JSON.stringify(bitKey), err => { console.error(err) });
 }

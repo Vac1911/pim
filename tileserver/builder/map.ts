@@ -1,5 +1,6 @@
 import type { Point } from './interfaces'
 import { Feature } from './feature'
+const Marker = require('./marker');
 import { Layer } from './layer'
 import {MapOptions} from "./interfaces";
 
@@ -72,9 +73,15 @@ module.exports = class Map {
             paths = geometry.coordinates.map(line => [line]);
 
         for(let path of paths) {
-            path = path[0].map(([x, y]) =>    this.coordToWorld({x: x, y: y}));
+            path = path[0].map(([x, y]) => this.coordToWorld({x: x, y: y}));
             this.features.push(new Feature(path, ...params));
         }
+    }
+
+    addMarker(geometry, ...params) {
+        let path = [geometry].map(([x, y]) => this.coordToWorld({x: x, y: y}));
+        this.features.push(new Marker(path, ...params));
+        return this;
     }
 
     /**

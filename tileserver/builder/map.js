@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_1 = require("./feature");
+const Marker = require('./marker');
 const layer_1 = require("./layer");
 const { execCmd } = require('../utils');
 const chalk = require('chalk');
@@ -62,6 +63,11 @@ module.exports = class Map {
             path = path[0].map(([x, y]) => this.coordToWorld({ x: x, y: y }));
             this.features.push(new feature_1.Feature(path, ...params));
         }
+    }
+    addMarker(geometry, ...params) {
+        let path = [geometry].map(([x, y]) => this.coordToWorld({ x: x, y: y }));
+        this.features.push(new Marker(path, ...params));
+        return this;
     }
     /**
      * Project [lng,lat] on sphere onto [x,y] on 512*512 Mercator Zoom 0 layer.

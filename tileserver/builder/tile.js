@@ -12,7 +12,8 @@ class Tile {
         this.options = options;
         this.canvas = createCanvas(this.options.tileSize, this.options.tileSize);
         this.context = this.canvas.getContext('2d');
-        this.context.antialias = 'none';
+        if (options.hasOwnProperty('antialias'))
+            this.context.antialias = options.antialias ?? 'default';
         this.context.save();
         this.context.fillStyle = options.bgColor;
         this.context.fillRect(0, 0, this.options.tileSize, this.options.tileSize);
