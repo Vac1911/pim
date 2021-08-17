@@ -4,13 +4,24 @@ exports.Feature = void 0;
 const { lineString, polygon } = require('@turf/helpers');
 const bboxClip = require('@turf/bbox-clip');
 class Feature {
-    constructor(worldData, styles) {
-        // TODO: pass geometry variable to constructor and parse worldData here
-        this.worldData = worldData;
+    constructor(geometry, styles) {
+        this.geometry = geometry;
         if (styles !== undefined)
             this.styles = styles;
     }
-    static fromGeoJson(geoJson) {
+    static fromGeoJson(geoJson, styles) {
+        const geometry = geoJson.type == 'Feature' ? geoJson.geometry : geoJson;
+        return new Feature(geometry, styles);
+        let paths = [];
+        if (geometry.type == 'MultiPolygon')
+            paths = geometry.coordinates;
+        else if (geometry.type == 'Polygon')
+            paths = [geometry.coordinates];
+        else if (geometry.type == 'LineString')
+            paths = [[geometry.coordinates]];
+        else if (geometry.type == 'MultiLineString')
+            paths = geometry.coordinates.map(line => [line]);
+        return paths;
     }
     getGeom() {
         const path = this.layerData.map(p => [p.x, p.y]);

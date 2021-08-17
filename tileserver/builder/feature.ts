@@ -8,19 +8,30 @@ const bboxClip = require('@turf/bbox-clip');
 
 export class Feature {
     geometry;
-    worldData: Point[];
+    worldData!: Point[];
     layerData!: Point[];
     layerBbox!: BBox;
     styles!: DrawStyle;
 
-    constructor(worldData: Point[], styles?: DrawStyle) {
-        // TODO: pass geometry variable to constructor and parse worldData here
-        this.worldData = worldData;
+    constructor(geometry, styles?: DrawStyle) {
+        this.geometry = geometry;
         if (styles !== undefined) this.styles = styles;
     }
 
-    static fromGeoJson(geoJson: object) {
+    static fromGeoJson(geoJson, styles?: DrawStyle) {
+        const geometry = geoJson.type == 'Feature' ? geoJson.geometry : geoJson;
+        return new Feature(geometry, styles);
 
+        let paths: any[] = [];
+        if(geometry.type == 'MultiPolygon')
+            paths = geometry.coordinates;
+        else if(geometry.type == 'Polygon')
+            paths = [geometry.coordinates];
+        else if(geometry.type == 'LineString')
+            paths = [[geometry.coordinates]];
+        else if(geometry.type == 'MultiLineString')
+            paths = geometry.coordinates.map(line => [line]);
+        return paths;
     }
 
     getGeom() {

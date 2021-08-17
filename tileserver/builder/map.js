@@ -49,16 +49,6 @@ module.exports = class Map {
         }
     }
     addJsonFeature(feature, ...params) {
-        const geometry = feature.type == 'Feature' ? feature.geometry : feature;
-        let paths = [];
-        if (geometry.type == 'MultiPolygon')
-            paths = geometry.coordinates;
-        else if (geometry.type == 'Polygon')
-            paths = [geometry.coordinates];
-        else if (geometry.type == 'LineString')
-            paths = [[geometry.coordinates]];
-        else if (geometry.type == 'MultiLineString')
-            paths = geometry.coordinates.map(line => [line]);
         for (let path of paths) {
             path = path[0].map(([x, y]) => this.coordToWorld({ x: x, y: y }));
             this.features.push(new feature_1.Feature(path, ...params));
