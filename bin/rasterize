@@ -84,7 +84,7 @@ async function bit() {
     const nations = require('../tileserver/data/vector/nations.json').features;
     let bitKey = Object.fromEntries(sortBy(nations.map(n => n.properties.NAME)).map((nation, i) => [nation, colorUtils.bitValue((i / nations.length), 1, 0.75)]));
 
-    let bitmap = new Map(3, path.resolve(__dirname, '../public/bitmap'));
+    let bitmap = new Map(3, path.resolve(__dirname, '../public/bitmap'), {antialias: 'none'});
     for(const nation of nations) {
         bitmap.addJsonFeature(nation, {fillStyle: bitKey[nation.properties.NAME], name: 'nations'});
     }
