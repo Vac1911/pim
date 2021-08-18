@@ -46,6 +46,8 @@ export class Feature {
             if (minX === undefined || point.x < minX) minX = point.x;
             if (maxY === undefined || point.y > maxY) maxY = point.y;
             if (minY === undefined || point.y < minY) minY = point.y;
+            point[0] = point.x;
+            point[1] = point.y;
             return point;
         }
         this.layerGeom = geomMap(this.worldGeom, callback);
@@ -78,6 +80,7 @@ export class Feature {
     }
 
     makeGeom(tile: Tile) {
+        if(!this.inBox(tile.boundingBox)) return;
         const canvasGeom = geomMap(this.layerGeom, tile.layerToCanvas.bind(tile));
         const geometries = flatten(canvasGeom).features.map(f => getGeom(f));
 

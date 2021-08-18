@@ -24,7 +24,7 @@ async function run() {
     await compute();
     await load();
     await build();
-    // await bit();
+    await bit();
 }
 
 async function compute() {
@@ -51,7 +51,7 @@ async function load() {
         marker: '#000',
     }
 
-    map = new Map(0, storagePath, {bgColor: palette.water});
+    map = new Map(2, storagePath, {bgColor: palette.water});
 
     const land = require('../tileserver/data/temp/land').geometries
     log(chalk.blue(`Loading Land`));
@@ -95,7 +95,7 @@ async function bit() {
     let bitKey = Object.fromEntries(sortBy(nations.map(n => n.properties.NAME)).map((nation, i) => [nation, colorUtils.bitValue((i / nations.length), 1, 0.75)]));
 
     const bitmapDir = path.resolve(__dirname, '../public/bitmap');
-    let bitmap = new Map(3, bitmapDir, {antialias: 'none'});
+    let bitmap = new Map(2, bitmapDir, {antialias: 'none'});
     for(const nation of nations) {
         bitmap.addFeature(Feature.fromGeoJson(nation, {fillStyle: bitKey[nation.properties.NAME], name: 'nations'}));
     }
