@@ -2,14 +2,18 @@ import type {DrawStyle, Point} from './interfaces'
 import type {BBox} from "@turf/turf";
 import {NodeCanvasRenderingContext2D} from "canvas";
 import {LineString, Polygon} from "@turf/turf";
+import {Tile} from "./tile";
 
-const {lineString, polygon} = require('@turf/helpers');
+const {feature} = require('@turf/helpers');
 const bboxClip = require('@turf/bbox-clip');
+const flatten = require('@turf/flatten');
+const {getGeom} = require('@turf/invariant');
+const {geomMap} = require('../coordMap');
 
 export class Feature {
     geometry;
-    worldData!: Point[];
-    layerData!: Point[];
+    worldGeom!: any;
+    layerGeom!: any;
     layerBbox!: BBox;
     styles!: DrawStyle;
 
@@ -20,54 +24,37 @@ export class Feature {
 
     static fromGeoJson(geoJson, styles?: DrawStyle) {
         const geometry = geoJson.type == 'Feature' ? geoJson.geometry : geoJson;
-        return new Feature(geometry, styles);
-
-        let paths: any[] = [];
-        if(geometry.type == 'MultiPolygon')
-            paths = geometry.coordinates;
-        else if(geometry.type == 'Polygon')
-            paths = [geometry.coordinates];
-        else if(geometry.type == 'LineString')
-            paths = [[geometry.coordinates]];
-        else if(geometry.type == 'MultiLineString')
-            paths = geometry.coordinates.map(line => [line]);
-        return paths;
+        return new this(geometry, styles);
     }
 
-    getGeom() {
-        const path = this.layerData.map(p => [p.x, p.y]);
-        if(this.styles.fillStyle) return polygon([path]);
-        else return lineString(path);
+    calcWorldGeom(callback) {
+        this.worldGeom = geomMap(this.geometry, callback);
+        return this;
     }
-
-    // getPath(geom: Polygon|LineString) {
-    //     if(geom.type === "Polygon") return getCoords([path]);
-    //     else return lineString(path);
-    // }
 
     scaleTo(zoomLevel: number) {
         const scalar: number = 2 ** zoomLevel;
-        this.layerData = [];
 
         let maxX: number | undefined = undefined,
             minX: number | undefined = undefined,
             maxY: number | undefined = undefined,
             minY: number | undefined = undefined;
 
-        for (const p of this.worldData) {
+        const callback = p => {
             const point: Point = {x: p.x * scalar, y: p.y * scalar};
             if (maxX === undefined || point.x > maxX) maxX = point.x;
             if (minX === undefined || point.x < minX) minX = point.x;
             if (maxY === undefined || point.y > maxY) maxY = point.y;
             if (minY === undefined || point.y < minY) minY = point.y;
-            this.layerData.push(point);
+            return point;
         }
+        this.layerGeom = geomMap(this.worldGeom, callback);
         this.layerBbox = [minX ?? 0, minY ?? 0,  maxX ?? 0, maxY ?? 0];
         return this;
     }
 
     clip(box: BBox) {
-        return bboxClip(this.getGeom(), box);
+        return bboxClip(feature(this.layerGeom), box);
     }
 
     inBox(box: BBox): boolean {
@@ -78,10 +65,9 @@ export class Feature {
         return !(this.layerBbox[1] >= box[3] || box[1] >= this.layerBbox[3]);
     }
 
-    draw(context: NodeCanvasRenderingContext2D, pathData: Point[]) {
-        this.setStyles(context);
-        this.makePath(context, pathData);
-        this.drawPath(context);
+    draw(tile: Tile) {
+        this.setStyles(tile.context);
+        this.makeGeom(tile);
     }
 
     setStyles(context: NodeCanvasRenderingContext2D) {
@@ -91,15 +77,35 @@ export class Feature {
         }
     }
 
-    makePath(context: NodeCanvasRenderingContext2D, pathData: Point[]) {
-        context.beginPath();
-        for (const i in pathData) {
-            context[(i === '0') ? 'moveTo' : 'lineTo'](pathData[i].x, pathData[i].y)
+    makeGeom(tile: Tile) {
+        const canvasGeom = geomMap(this.layerGeom, tile.layerToCanvas.bind(tile));
+        const geometries = flatten(canvasGeom).features.map(f => getGeom(f));
+
+
+        for(let geometry of geometries) {
+            tile.context.beginPath();
+            if(geometry.type == 'LineString') {
+                this.makePath(tile, geometry.coordinates);
+            }
+            else if(geometry.type == 'Polygon') {
+                for(let ring of geometry.coordinates) {
+                    this.makePath(tile, ring);
+                    tile.context.closePath();
+                }
+            }
+            this.drawPath(tile);
         }
     }
 
-    drawPath(context: NodeCanvasRenderingContext2D) {
-        if (this.styles.fillStyle) context.fill();
-        if (this.styles.strokeStyle) context.stroke();
+
+    makePath(tile: Tile, pathData: Point[]) {
+        for (const i in pathData) {
+            tile.context[(i === '0') ? 'moveTo' : 'lineTo'](pathData[i].x, pathData[i].y)
+        }
+    }
+
+    drawPath(tile: Tile) {
+        if (this.styles.fillStyle) tile.context.fill();
+        if (this.styles.strokeStyle) tile.context.stroke();
     }
 }

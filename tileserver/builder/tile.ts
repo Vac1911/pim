@@ -3,6 +3,7 @@ import type { DrawStyle, Point } from './interfaces'
 import type { BBox } from "@turf/turf";
 import { Feature } from './feature'
 import {MapOptions} from "./interfaces";
+import {Marker} from "./marker";
 const fs = require('fs');
 const path = require('path');
 const { createCanvas } = require('canvas')
@@ -47,15 +48,7 @@ export class Tile {
     }
 
     draw(feat: Feature) {
-        const start = process.uptime() * 1000;
-        if(!feat.inBox(this.boundingBox)) return false;
-
-        const path: Point[] = feat.layerData.map(this.layerToCanvas.bind(this));
-        feat.draw(this.context, path);
-
-        const diff = Math.floor(process.uptime() * 1000 - start);
-        if(diff > 50)
-        console.log(`${diff.toString().padStart(4, '0')}ms (${this.z}/${this.x}/${this.y}) ${feat.styles.name}`);
+        feat.draw(this);
     }
 
     writeImage(file: string) {

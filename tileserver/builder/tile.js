@@ -33,14 +33,7 @@ class Tile {
         return { x: x, y: y };
     }
     draw(feat) {
-        const start = process.uptime() * 1000;
-        if (!feat.inBox(this.boundingBox))
-            return false;
-        const path = feat.layerData.map(this.layerToCanvas.bind(this));
-        feat.draw(this.context, path);
-        const diff = Math.floor(process.uptime() * 1000 - start);
-        if (diff > 50)
-            console.log(`${diff.toString().padStart(4, '0')}ms (${this.z}/${this.x}/${this.y}) ${feat.styles.name}`);
+        feat.draw(this);
     }
     writeImage(file) {
         if (!fs.existsSync(path.dirname(file)))

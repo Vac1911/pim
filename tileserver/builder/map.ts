@@ -41,7 +41,7 @@ module.exports = class Map {
     }
 
     buildLayers() {
-        for (const z of Array(this.maxZoom).keys()) {
+        for (const z of Array(this.maxZoom + 1).keys()) {
             this.layers[z] = new Layer(z, this.options);
         }
     }
@@ -59,17 +59,12 @@ module.exports = class Map {
         }
     }
 
-    addJsonFeature(feature, ...params) {
-
-        for(let path of paths) {
-            path = path[0].map(([x, y]) => this.coordToWorld({x: x, y: y}));
-            this.features.push(new Feature(path, ...params));
-        }
-    }
-
-    addMarker(geometry, ...params) {
-        let path = [geometry].map(([x, y]) => this.coordToWorld({x: x, y: y}));
-        this.features.push(new Marker(path, ...params));
+    addFeature(feature) {
+        feature.calcWorldGeom(this.coordToWorld.bind(this));
+        if(feature.geometry.type)
+            this.features.push(feature);
+        else
+            console.log(feature);
         return this;
     }
 
@@ -84,7 +79,7 @@ module.exports = class Map {
      * @param Point {x: lng, y: lat} Specifies a point on the sphere to project onto the map.
      * @return Point world pixel position.
      */
-     coordToWorld({x: lng, y: lat}: Point) {
+     coordToWorld([lng, lat]: number[]) {
         //  Lattitude flipped because canvas system has flipped y axis
         // lat = -lat;
 

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const feature_1 = require("./feature");
 const Marker = require('./marker');
 const layer_1 = require("./layer");
 const { execCmd } = require('../utils');
@@ -32,7 +31,7 @@ module.exports = class Map {
         await execCmd(`rm -rf ${this.storagePath}/*`);
     }
     buildLayers() {
-        for (const z of Array(this.maxZoom).keys()) {
+        for (const z of Array(this.maxZoom + 1).keys()) {
             this.layers[z] = new layer_1.Layer(z, this.options);
         }
     }
@@ -48,15 +47,12 @@ module.exports = class Map {
             this.layers[z].writeTo(`${this.storagePath}`);
         }
     }
-    addJsonFeature(feature, ...params) {
-        for (let path of paths) {
-            path = path[0].map(([x, y]) => this.coordToWorld({ x: x, y: y }));
-            this.features.push(new feature_1.Feature(path, ...params));
-        }
-    }
-    addMarker(geometry, ...params) {
-        let path = [geometry].map(([x, y]) => this.coordToWorld({ x: x, y: y }));
-        this.features.push(new Marker(path, ...params));
+    addFeature(feature) {
+        feature.calcWorldGeom(this.coordToWorld.bind(this));
+        if (feature.geometry.type)
+            this.features.push(feature);
+        else
+            console.log(feature);
         return this;
     }
     /**
@@ -70,7 +66,7 @@ module.exports = class Map {
      * @param Point {x: lng, y: lat} Specifies a point on the sphere to project onto the map.
      * @return Point world pixel position.
      */
-    coordToWorld({ x: lng, y: lat }) {
+    coordToWorld([lng, lat]) {
         //  Lattitude flipped because canvas system has flipped y axis
         // lat = -lat;
         const lambda2 = lng * DEGREES_TO_RADIANS;
